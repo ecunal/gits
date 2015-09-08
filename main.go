@@ -38,6 +38,14 @@ func main() {
 				filepath.Walk(".", walker(pull))
 			},
 		},
+		{
+			Name:    "checkout",
+			Aliases: []string{"co"},
+			Action: func(c *cli.Context) {
+				branch = c.Args().First()
+				filepath.Walk(".", walker(checkout))
+			},
+		},
 	}
 
 	app.Run(os.Args)
@@ -63,15 +71,8 @@ func walker(fn filepath.WalkFunc) filepath.WalkFunc {
 }
 
 func status(path string, info os.FileInfo, err error) error {
-	// branch
-	// git rev-parse --abbrev-ref HEAD
-	cmdb := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	cmdb.Dir = path
-	resb, _ := cmdb.CombinedOutput()
-	fmt.Println("On branch " + strings.TrimSpace(string(resb)))
+	fmt.Println("On branch " + currentBranch(path))
 
-	// status
-	// git status --porcelain
 	cmd := exec.Command("git", "status", "--porcelain")
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
@@ -86,7 +87,6 @@ func status(path string, info os.FileInfo, err error) error {
 }
 
 func fetch(path string, info os.FileInfo, err error) error {
-	// git fetch
 	cmd := exec.Command("git", "fetch")
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
@@ -101,12 +101,20 @@ func fetch(path string, info os.FileInfo, err error) error {
 }
 
 func pull(path string, info os.FileInfo, err error) error {
-	// git pull
 	args := []string{"pull"}
 	if branch != "" {
 		args = append(args, "origin", branch)
 	}
 	cmd := exec.Command("git", args...)
+	cmd.Dir = path
+	res, _ := cmd.CombinedOutput()
+	fmt.Println(strings.TrimSpace(string(res)))
+
+	return filepath.SkipDir
+}
+
+func checkout(path string, info os.FileInfo, err error) error {
+	cmd := exec.Command("git", "checkout", branch)
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
 	fmt.Println(strings.TrimSpace(string(res)))
@@ -123,4 +131,11 @@ func isGit(dir string) bool {
 	}
 
 	return strings.TrimSpace(string(res)) == "true"
+}
+
+func currentBranch(path string) string {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	cmd.Dir = path
+	res, _ := cmd.CombinedOutput()
+	return strings.TrimSpace(string(res))
 }
