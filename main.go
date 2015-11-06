@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 )
 
 // TODO verbose option
@@ -65,29 +66,26 @@ func walker(fn filepath.WalkFunc) filepath.WalkFunc {
 			return nil
 		}
 
-		fmt.Println("* " + path)
 		return fn(path, info, err)
 	}
 }
 
 func status(path string, info os.FileInfo, err error) error {
-	fmt.Println("On branch " + currentBranch(path))
+	fmt.Println(color.MagentaString("* "+path)+"\nOn branch", color.CyanString(currentBranch(path)))
 
 	cmd := exec.Command("git", "status", "--porcelain")
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
 	clean := strings.TrimSpace(string(res))
-	if clean == "" {
-		fmt.Println("Working tree clean")
-	} else {
-		fmt.Println(clean)
+	if clean != "" {
+		fmt.Println(" " + clean)
 	}
 
 	return filepath.SkipDir
 }
 
 func fetch(path string, info os.FileInfo, err error) error {
-	cmd := exec.Command("git", "fetch")
+	cmd := exec.Command("git", "fetch", "-p")
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
 	clean := strings.TrimSpace(string(res))
