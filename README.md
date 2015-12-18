@@ -3,6 +3,8 @@ A small tool to execute recursive git commands in a directory.
 
 When run without any arguments, executes `git status` on current directory recursively and lists the output(s).
 
+[![Go Report Card](http://goreportcard.com/badge/ecunal/gits)](http://goreportcard.com/report/ecunal/gits)
+
 ### Commands
 
 ```
