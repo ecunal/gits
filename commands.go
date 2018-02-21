@@ -10,14 +10,13 @@ import (
 )
 
 func status(path string, info os.FileInfo, err error) error {
-	fmt.Println("On branch", currentBranch(path))
+	fmt.Printf("On branch %s\n\n", currentBranch(path))
 
 	cmd := exec.Command("git", "status", "--porcelain")
 	cmd.Dir = path
 	res, _ := cmd.CombinedOutput()
-	str := string(res)
-	if !isWhitespace(str) {
-		fmt.Println("\n" + str)
+	if str := string(res); !isWhitespace(str) {
+		fmt.Println(str)
 	}
 
 	return filepath.SkipDir

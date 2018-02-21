@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
+	"github.com/urfave/cli"
 )
 
 var branch string
@@ -71,7 +71,7 @@ func walker(fn filepath.WalkFunc) filepath.WalkFunc {
 			return nil
 		}
 
-		color.Cyan("\n* " + path)
+		color.Cyan("* " + path)
 		return fn(path, info, err)
 	}
 }
