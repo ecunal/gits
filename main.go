@@ -52,6 +52,13 @@ func main() {
 				filepath.Walk(".", walker(checkout))
 			},
 		},
+		{
+			Name:  "diff",
+			Usage: `Recursive "git diff"`,
+			Action: func(c *cli.Context) {
+				filepath.Walk(".", walker(diff))
+			},
+		},
 	}
 
 	app.Run(os.Args)

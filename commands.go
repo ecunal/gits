@@ -78,3 +78,8 @@ func isWhitespace(s string) bool {
 
 	return true
 }
+
+func diff(path string, info os.FileInfo, err error) error {
+	fmt.Println(executeTrimmed(path, "git", "diff"))
+	return filepath.SkipDir
+}
