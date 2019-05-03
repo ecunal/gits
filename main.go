@@ -1,86 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/fatih/color"
-	"github.com/urfave/cli"
 )
 
 var branch string
 var commitMessage string
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "gits"
-	app.Usage = "recursive git commands"
-	app.Action = func(c *cli.Context) {
+	if len(os.Args) == 1 {
 		filepath.Walk(".", walker(status))
+		return
 	}
 
-	app.Commands = []cli.Command{
-		{
-			Name:    "fetch",
-			Aliases: []string{"f"},
-			Usage:   `Recursive "git fetch -p"`,
-			Action: func(c *cli.Context) {
-				filepath.Walk(".", walker(fetch))
-			},
-		},
-		{
-			Name:      "pull",
-			Aliases:   []string{"p"},
-			Usage:     `Recursive "git pull origin <branch>"`,
-			ArgsUsage: "<branch> - If no branch is supplied, current branch is used.",
-			Action: func(c *cli.Context) {
-				branch = c.Args().First()
-				filepath.Walk(".", walker(pull))
-			},
-		},
-		{
-			Name:      "checkout",
-			Aliases:   []string{"co"},
-			Usage:     `Recursive "git checkout <branch>"`,
-			ArgsUsage: "<branch> - Branch name is required.",
-			Action: func(c *cli.Context) {
-				branch = c.Args().First()
-				if branch == "" {
-					fmt.Println("Branch name to checkout is required.")
-					return
-				}
-				filepath.Walk(".", walker(checkout))
-			},
-		},
-		{
-			Name:  "diff",
-			Usage: `Recursive "git diff"`,
-			Action: func(c *cli.Context) {
-				filepath.Walk(".", walker(diff))
-			},
-		},
-		{
-			Name:  "add",
-			Usage: `Recursive "git add"`,
-			Action: func(c *cli.Context) {
-				filepath.Walk(".", walker(add))
-			},
-		},
-		{
-			Name:  "commit",
-			Usage: `Recursive "git commit"`,
-			Action: func(c *cli.Context) {
-				commitMessage = c.Args().First()
-				filepath.Walk(".", walker(commit))
-			},
-		},
-	}
-
-	app.Run(os.Args)
+	filepath.Walk(".", walker(execute))
 }
 
-func walker(fn filepath.WalkFunc) filepath.WalkFunc {
+func walker(fn func(path string, info os.FileInfo, args []string) error) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -95,6 +34,6 @@ func walker(fn filepath.WalkFunc) filepath.WalkFunc {
 		}
 
 		color.Cyan("* " + path)
-		return fn(path, info, err)
+		return fn(path, info, os.Args[1:])
 	}
 }
