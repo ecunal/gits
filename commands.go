@@ -83,3 +83,13 @@ func diff(path string, info os.FileInfo, err error) error {
 	fmt.Println(executeTrimmed(path, "git", "diff"))
 	return filepath.SkipDir
 }
+
+func add(path string, info os.FileInfo, err error) error {
+	fmt.Println(executeTrimmed(path, "git", "add", "-u"))
+	return filepath.SkipDir
+}
+
+func commit(path string, info os.FileInfo, err error) error {
+	fmt.Println(executeTrimmed(path, "git", "commit", "-m", commitMessage))
+	return filepath.SkipDir
+}

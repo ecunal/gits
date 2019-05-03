@@ -10,6 +10,7 @@ import (
 )
 
 var branch string
+var commitMessage string
 
 func main() {
 	app := cli.NewApp()
@@ -57,6 +58,21 @@ func main() {
 			Usage: `Recursive "git diff"`,
 			Action: func(c *cli.Context) {
 				filepath.Walk(".", walker(diff))
+			},
+		},
+		{
+			Name:  "add",
+			Usage: `Recursive "git add"`,
+			Action: func(c *cli.Context) {
+				filepath.Walk(".", walker(add))
+			},
+		},
+		{
+			Name:  "commit",
+			Usage: `Recursive "git commit"`,
+			Action: func(c *cli.Context) {
+				commitMessage = c.Args().First()
+				filepath.Walk(".", walker(commit))
 			},
 		},
 	}
